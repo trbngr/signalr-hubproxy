@@ -15,10 +15,7 @@ namespace Client.Controllers
 
         protected IHubProxy Hub
         {
-            get
-            {
-                return _proxies.Get<THub>();
-            }
+            get { return _proxies.Get<THub>(); }
         }
     }
 }
