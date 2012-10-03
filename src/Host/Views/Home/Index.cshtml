@@ -1,0 +1,58 @@
+﻿@using System.Configuration
+@{
+    ViewBag.Title = "Index";
+    string apiUrl = string.Format("{0}/api/values", ConfigurationManager.AppSettings["api:baseUri"]);
+}
+
+<div id="status" style="background-color: red">Offline</div>
+<div id="form" style="display: none">
+    <h2>POST Value</h2>
+    
+        <label for="value">Value</label>
+        <input type="text" id="value" name="value" />
+    <button id="localSubmit">Submit Locally</button>
+    <button id="apiSubmit">Submit via API</button>
+</div>
+
+<div id="values"></div>
+
+@section scripts{
+    
+<script type="text/javascript" src="~/Scripts/jquery.signalR-0.5.3.min.js"> </script>
+<script type="text/javascript" src="~/SignalR/hubs"> </script>
+<script type="text/javascript">
+
+    $(function() {
+
+        /*FORM POST STUFFS*/
+        var $input = $('#value');
+
+        var clear = function () {
+            $input.val('');
+        };
+
+        $(document).on('click', '#localSubmit', function () {
+            $.post('/home/post', { value: $input.val() }).done(clear);
+        });
+
+        $(document).on('click', '#apiSubmit', function () {
+            $.post('/home/postapi', { value: $input.val() }).done(clear);
+        });
+        
+        
+        /*        SignalR        */
+        var hub = $.connection.values;
+
+        hub.add = function(v) {
+            var $values = $('#values');
+            $('<div>').html(v).appendTo($values);
+        };
+        
+        $.connection.hub.start()
+            .done(function () {
+                $('#status').css('background-color', 'green').html('Online');
+                $('#form').show('slow');
+            });
+    });
+</script>
+}
